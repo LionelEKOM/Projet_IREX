@@ -1,0 +1,109 @@
+properties ([
+    parameters ([
+        string (
+            defaultValue: 'drive.dev.onesi.ca',
+            description: 'hostname of vm use to deploy service',
+            name : 'DEPLOY_VM'),
+        string (
+            defaultValue: 'debian',
+            description: 'user use to deploy service ',
+            name : 'DEPLOY_USER'),
+        string (
+            defaultValue: 'debian',
+            description: 'password of user using durig deployment',
+            name : 'DEPLOY_USER_PASS'),
+        string (
+            defaultValue: 'dev.onesi.ca',
+            description: 'domaine of service use during deployment',
+            name : 'DOMAIN_SERVICE'),
+        string (
+            defaultValue: 'webmail.dev.onesi.ca',
+            description: 'mail server hostname',
+            name : 'MAIL_SERVER'),
+        string (
+            defaultValue: 'ldap.dev.onesi.ca',
+            description: 'hostname of ldap server',
+            name : 'LDAP_HOSTNAME'),
+        string (
+            defaultValue: 'dc=dev,dc=onesi,dc=ca',
+            description: 'ldap base in ldap server',
+            name : 'LDAP_BASE'),
+        string (
+            defaultValue: 'cn=admin,dc=dev,dc=onesi,dc=ca',
+            description: 'ldap admin user in ldap server',
+            name : 'LDAP_ADMIN'),
+        string (
+            defaultValue: 'password',
+            description: 'password of admin account',
+            name : 'LDAP_PASSWORD'),
+        string (
+            defaultValue: 'dev',
+            description: 'branch of pipeline projet use to deploy certificate',
+            name : 'CERT_BRANCH'),
+        string (
+            defaultValue: 'https://.dev.onesi.ca/auth/realms/IREX',
+            description: 'keycloak realm URL',
+            name : 'KEYCLOAK_REAML'),
+        string (
+            defaultValue: 'DRIVE ONESI',
+            description: 'Keycloak CLIENT NAME',
+            name : 'KEYCLOAK_CLIENT_NAME'),
+        string (
+            defaultValue: 'drive',
+            description: 'drive client id in keycloak',
+            name : 'KEYCLOAK_CLIENT_ID'),
+        string (
+            defaultValue: 'b6sAv8HYY4Ezr8zlBHcvkBqarT2bE6oA',
+            description: 'drive client password in keycloak',
+            name : 'KEYCLOAK_CLIENT_PASSWORD')
+    ])
+])
+
+node {    
+    scmVars = checkout scm
+    sh 'mkdir -p /tmp/step-ca-client'
+	dir("/tmp/step-ca-client")
+    {
+        script{
+            checkout([$class: 'GitSCM',
+                branches: [[name: '*/$CERT_BRANCH']],
+                doGenerateSubmoduleConfigurations: false,
+                extensions: [[$class: 'CleanBeforeCheckout'],
+                [$class: 'CloneOption', depth: 1, noTags: false, reference: '', shallow: true]], 
+                submoduleCfg: [], 
+                userRemoteConfigs: [[credentialsId: '465ea891-73de-4b3c-9983-f96477f34bba', url: 'https://gitface.irex.aretex.ca/irex-docker-projects/mirroring-iaas-projects/authentication/step-ca-client.git']]])           
+        }
+    }
+    generate_conf()
+    get_certs()
+    deploy()
+}
+
+def deploy() {
+    stage 'Deploying Service'
+    sh '''
+        sshpass -p $DEPLOY_USER_PASS  ssh -o 'stricthostkeychecking=no' $DEPLOY_USER@$DEPLOY_VM "echo $DEPLOY_USER_PASS | sudo -S rm -rf nextcloud"
+        sshpass -p $DEPLOY_USER_PASS  scp -o 'stricthostkeychecking=no' -r $PWD $DEPLOY_USER@$DEPLOY_VM:nextcloud
+        '''
+    sh '''
+        sshpass -p $DEPLOY_USER_PASS  ssh -o 'stricthostkeychecking=no' $DEPLOY_USER@$DEPLOY_VM "cd nextcloud/vm  && echo $DEPLOY_USER_PASS | sudo -S bash main.sh"
+        '''
+    sleep 90
+    sh '''
+    while ! ping -c1 $DEPLOY_VM &>/dev/null
+        do sleep 10;echo "Wait $DEPLOY_VM restarting "
+    done
+    '''
+}
+
+def generate_conf(){
+    sh '''
+    #!/bin/bash
+    source 'cicd/utilies/setconf.sh'
+    '''
+}
+def get_certs(){
+    stage 'generate certificate'
+    def certificates = load '/tmp/step-ca-client/cicd/functions/certificates.groovy'
+    certificates.deploy()
+}

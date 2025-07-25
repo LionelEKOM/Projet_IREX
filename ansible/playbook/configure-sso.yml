@@ -1,0 +1,56 @@
+---
+- name: Create or update  client
+  community.general.keycloak_client:
+    auth_client_id: admin-cli
+    auth_keycloak_url: "{{ KEYCLOAK_URL }}/auth"
+    auth_realm: master
+    auth_username: "{{ KEYCLOAK_ADMIN_USERNAME }}"
+    auth_password: "{{ KEYCLOAK_ADMIN_PASSWORD }}"
+    state: present
+    realm: "{{ KEYCLOAK_CLIENT_REALM }}"
+    client_id: "{{ KEYCLOAK_CLIENT_ID }}"
+    id: "{{ KEYCLOAK_CLIENT_ID }}"
+    name: "Nextcloud client"
+    description: "Client Nextcloud"
+    client_authenticator_type: client-secret
+    redirect_uris:
+      - "{{ KEYCLOAK_CLIENT_REDIRECT_URI }}"
+    public_client: false
+    protocol: openid-connect
+    always_display_in_console: true
+
+- name: Get a Keycloak client secret, authentication with credentials
+  community.general.keycloak_clientsecret_info:
+    id: "{{ KEYCLOAK_CLIENT_ID }}"
+    realm: "{{ KEYCLOAK_CLIENT_REALM }}"
+    auth_client_id: admin-cli
+    auth_keycloak_url: "{{ KEYCLOAK_URL }}/auth"
+    auth_realm: master
+    auth_username: "{{ KEYCLOAK_ADMIN_USERNAME }}"
+    auth_password: "{{ KEYCLOAK_ADMIN_PASSWORD }}"
+  no_log: false
+  register: client_info
+- name: Configure SSO
+  block:
+    - name: Install  Social Login app
+      shell: sudo -u www-data php occ app:list | grep -q sociallogin || sudo -u www-data php occ app:install sociallogin
+      args:
+        chdir: "{{ DRIVE_DIR }}"
+
+    - name: Enable Social Login app
+      shell: sudo -u www-data php occ app:enable sociallogin
+      args:
+        chdir: "{{ DRIVE_DIR }}"
+
+    - name: Generate openid connect conf
+      template:
+        src: "template/openidconnect.j2"
+        dest: "/tmp/openidconnect.conf"
+        mode: 0644
+    
+    - name: configure openid conf
+      ansible.builtin.shell: |
+            sudo -u www-data php occ config:app:set sociallogin custom_providers --value="$(cat /tmp/openidconnect.conf)"
+      args:
+        chdir: "{{ DRIVE_DIR }}"
+  become: true

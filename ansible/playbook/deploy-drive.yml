@@ -1,0 +1,16 @@
+---
+- name: Copy docker-compose file with local image
+  copy:
+    src: nextcloud/docker/docker-compose/use_local_image.yml
+    dest: nextcloud/docker/docker-compose.yml
+  when: build
+
+- name: Deploy nextcloud
+  docker_service:
+    project_src: nextcloud/docker/
+    state: present
+  register: __docker_compose
+
+- name: debug
+  debug:
+    var: __docker_compose

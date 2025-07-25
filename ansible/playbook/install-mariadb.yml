@@ -1,0 +1,55 @@
+---
+- name: Install  mariadb server
+  apt:
+    name:
+      - mariadb-server
+    state: present
+    update_cache: yes
+  register: mariadbInstall
+
+- name: Start and enable mariadb service
+  service:
+    name: mariadb
+    enabled: true
+    state: started
+
+
+- name: Update root password of database
+  mysql_user:
+    name: root
+    password: "{{ DB_PASSWORD }}"
+    state: present
+    login_unix_socket: "/run/mysqld/mysqld.sock"
+  when: mariadbInstall.changed
+    
+
+- name: Removes all anonymous user accounts
+  mysql_user:
+    name: ''
+    host_all: true
+    state: absent
+    login_user: root
+    login_password: "{{ DB_PASSWORD }}"
+
+- name: remove the test database
+  mysql_db: 
+    name: "test" 
+    state: absent
+    login_user: root
+    login_password: "{{ DB_PASSWORD }}"
+
+- name: create nextcloud  database
+  mysql_db: 
+    name: "{{ DB_NAME }}" 
+    state: present
+    login_user: root
+    login_password: "{{ DB_PASSWORD }}"
+
+- name: Create user with password, all database privileges and 'WITH GRANT OPTION' in db1 and db2
+  mysql_user:
+    state: present
+    name: "{{ DB_USER_NAME }}"
+    password: "{{ DB_PASSWORD }}"
+    priv: '*.*:ALL,GRANT'
+    login_user: root
+    login_password: "{{ DB_PASSWORD }}"

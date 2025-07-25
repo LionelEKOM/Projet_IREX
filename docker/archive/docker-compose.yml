@@ -1,0 +1,25 @@
+version : "3.8"
+ 
+services:
+        drive:
+           image: drive
+           container_name: drive
+           restart: on-failure
+           volumes:
+                - /etc/letsencrypt/live:/etc/letsencrypt/live
+           ports:
+                - "8080:80"
+                - "2222:22"
+                - "443:443"
+                - "9000:9000"
+                - "3306:3306"
+                - "6379:6379"  
+
+        drivesetup:
+           image: drivesetup 
+           container_name: drivesetup
+           restart: on-failure
+           volumes:
+                - ../Irex_drive/:/nextcloud/
+           depends_on:
+                - drive

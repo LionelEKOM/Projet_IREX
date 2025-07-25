@@ -1,0 +1,15 @@
+---
+- name: Build drivesetup image and with buildargs
+  docker_image:
+    path: nextcloud/docker/Drive_setup
+    name: drivesetup
+    buildargs:
+      ENTRYPOINT_LOCATION: drive_setup.sh
+      MARIADB_VERSION: 10.3
+  when: build
+
+- name: Build drive image and with buildargs
+  docker_image:
+    path: nextcloud/docker/Irex_drive
+    name: drive
+  when: build

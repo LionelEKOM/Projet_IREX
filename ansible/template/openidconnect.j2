@@ -1,0 +1,15 @@
+{"custom_oidc": [
+{
+    "name": "{{ KEYCLOAK_CLIENT_NAME}}", 
+    "title": "Drive onesi", 
+    "authorizeUrl": "{{ KEYCLOAK_REAML }}/protocol/openid-connect/auth", 
+    "tokenUrl": "{{ KEYCLOAK_REAML }}/protocol/openid-connect/token", 
+    "userInfoUrl": "{{ KEYCLOAK_REAML }}/protocol/openid-connect/userinfo", 
+    "logoutUrl": "", 
+    "clientId": "{{ KEYCLOAK_CLIENT_ID }}", 
+    "clientSecret": "{{ client_info.clientsecret_info.value }}", 
+    "scope": "openid", 
+    "groupsClaim": "groups", 
+    "style": "keycloak", 
+    "defaultGroup": ""
+}]}

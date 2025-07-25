@@ -1,0 +1,6 @@
+- name: Log into IREX registry and force re-authorization
+  docker_login:
+    registry: registry.irex.aretex.ca
+    username: "{{ gituser }}"
+    password: "{{ gitpass }}"
+    reauthorize: yes

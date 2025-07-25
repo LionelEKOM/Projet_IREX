@@ -1,0 +1,119 @@
+---
+- name: "configuring first time logging infos"
+  shell: sudo -u www-data php  occ maintenance:install --database {{DB}} --database-name {{DB_NAME}}  --database-user {{DB_USER_NAME}} --database-pass {{DB_PASSWORD}} --admin-user {{ADMIN_LOG}} --admin-pass {{ADMIN_PASS}} --data-dir {{DATA_DIR}} | touch maintenance.lock
+  args:
+    chdir: "{{ DRIVE_DIR }}"
+    creates: maintenance.lock
+    
+- name: "setting the trusted domains"
+  shell: sudo -u www-data php occ config:system:set trusted_domains {{LINE_NUMBER}} --value={{DOMAIN_NAME}}
+  args:
+    chdir: "{{ DRIVE_DIR }}"
+
+- name: "check ldap configuration"
+  shell: sudo -u www-data php occ ldap:show-config s01 > /tmp/test.conf
+  args:
+    chdir: "{{ DRIVE_DIR }}"
+  ignore_errors: true
+- name: generate actual config 
+  template:
+    src: "template/ldap_config.conf.j2"
+    dest: "/tmp/ldap_config.conf"
+
+- name: remove space and -
+  ansible.builtin.replace:
+    path: "{{ item }}"
+    regexp: '( |-)'
+    replace: ''
+  with_items:
+    - /tmp/test.conf
+    - /tmp/ldap_config.conf
+- name: comapare actual config ldap with ldap config installed
+  ansible.builtin.copy:
+    src: /tmp/ldap_config.conf
+    dest: /tmp/test.conf
+    remote_src: yes
+  register: check_ldap
+
+- name: Configure LDAP 
+  block:
+    - name: "### enabling ldap user and group backend app"
+      shell: sudo -u www-data php  occ app:enable user_ldap
+      args:
+        chdir: "{{ DRIVE_DIR }}"
+
+    - name: "creating config..."
+      shell: sudo -u www-data php  occ ldap:create-empty-config
+      args:
+        chdir: "{{ DRIVE_DIR }}"   
+
+
+    - name: "setting AgentName..."
+      shell: sudo -u www-data php  occ ldap:set-config s01 ldapAgentName  {{SERVICE_ACCOUNT}}
+      args:
+        chdir: "{{ DRIVE_DIR }}"   
+
+    - name: "setting AgentPassword..."
+      shell: sudo -u www-data php  occ ldap:set-config s01 ldapAgentPassword {{PASSWORD}}
+      args:
+        chdir: "{{ DRIVE_DIR }}"
+
+    - name: echo "setting Port..."
+      shell: sudo -u www-data php  occ ldap:set-config s01 ldapPort {{PORT}}
+      args:
+        chdir: "{{ DRIVE_DIR }}"
+
+    - name: "setting Base..."
+      shell: sudo -u www-data php  occ ldap:set-config s01 ldapBase {{BASEDN}}
+      args:
+        chdir: "{{ DRIVE_DIR }}"
+
+    - name: "setting GroupFilter..."
+      shell: sudo -u www-data php  occ ldap:set-config s01 ldapGroupFilter "{{GROUPFILTER}}"
+      args:
+        chdir: "{{ DRIVE_DIR }}"
+    - name: echo "setting GroupFilterGroups..."
+      shell: sudo -u www-data php  occ ldap:set-config s01 ldapGroupFilterGroups {{GROUPFILTERGROUP}}
+      args:
+        chdir: "{{ DRIVE_DIR }}"
+
+
+    - name: "setting Host..."
+      shell: sudo -u www-data php  occ ldap:set-config s01 ldapHost {{HOST}}
+      args:
+        chdir: "{{ DRIVE_DIR }}"
+    - name: "setting LoginFilter..."
+      shell: sudo -u www-data php  occ ldap:set-config s01 ldapLoginFilter "{{LOGINFILTER}}"
+      args:
+        chdir: "{{ DRIVE_DIR }}"
+
+    - name: "setting LoginFilterAttr..."
+      shell: sudo -u www-data php  occ ldap:set-config s01 ldapLoginFilterAttributes {{LOGINFILTERATTR}}
+      args:
+        chdir: "{{ DRIVE_DIR }}"
+
+    - name: "setting LoginFilterEmail..."
+      shell: sudo -u www-data php  occ ldap:set-config s01 ldapLoginFilterEmail {{LOGINFILTEREMAILBOOLEAN}}
+      args:
+        chdir: "{{ DRIVE_DIR }}"
+    - name: "setting LoginFilterUsername..."
+      shell: sudo -u www-data php  occ ldap:set-config s01 ldapLoginFilterUsername {{LOGINFILTERNAMEBOOLEAN}}
+      args:
+        chdir: "{{ DRIVE_DIR }}"
+    - name: "Setting UserDisplayName..."
+      shell: sudo -u www-data php  occ ldap:set-config s01 ldapUserDisplayName {{USERDISPLAYNAME}}
+      args:
+        chdir: "{{ DRIVE_DIR }}"
+    - name: "Setting UserFilter..."
+      shell: sudo -u www-data php  occ ldap:set-config s01 ldapUserFilter "{{USERFILTER}}"
+      args:
+        chdir: "{{ DRIVE_DIR }}"
+    - name: "setting userfilterobjectclass..."
+      shell: sudo -u www-data php  occ ldap:set-config s01 ldapUserFilterObjectclass {{USERFILTEROBJECTCLASS}}
+      args:
+        chdir: "{{ DRIVE_DIR }}"
+    - name: "Activating the configuration"
+      shell: sudo -u www-data php occ ldap:set-config s01 ldapConfigurationActive {{CONFIGACTIVE}}
+      args:
+        chdir: "{{ DRIVE_DIR }}"
+  when: check_ldap.changed

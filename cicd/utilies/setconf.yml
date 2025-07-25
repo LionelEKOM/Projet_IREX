@@ -1,0 +1,14 @@
+---
+- hosts: localhost
+  tasks:
+    - name: generate variables
+      template:
+        src: "template/drive.yml.j2"
+        dest: "{{ ansible_env.WORKSPACE }}/ansible/group_vars/drive.yml"
+        mode: 0644
+        
+    - name: generate hosts file
+      template:
+        src: "template/hosts.j2"
+        dest: "{{ ansible_env.WORKSPACE }}/ansible/inventory/hosts"
+        mode: 0644

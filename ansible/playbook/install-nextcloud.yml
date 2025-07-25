@@ -1,0 +1,26 @@
+---
+- name: Download Nextcloud
+  get_url:
+    url: "https://download.nextcloud.com/server/releases/nextcloud-{{ NEXTCLOUD_VERSION }}.tar.bz2"
+    dest: "/tmp/nextcloud.tar.bz2"
+    mode: "0644"
+
+- name: Extract Nextcloud
+  unarchive:
+    src: "/tmp/nextcloud.tar.bz2"
+    dest: "/var/www/html/"
+    remote_src: yes
+    creates: "{{ DRIVE_DIR }}"
+
+- name: Create a nextcloud data folder
+  file:
+    path: "{{ DRIVE_DIR }}/data"
+    state: directory
+
+- name: Recursively change ownership of a directory
+  file:
+    path: "{{ DRIVE_DIR }}"
+    state: directory
+    recurse: yes
+    owner: www-data
+    group: www-data

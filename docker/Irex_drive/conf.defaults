@@ -1,0 +1,236 @@
+
+# Database configuration
+#DB stand for database
+MYSQL_HOST=mariadb
+MYSQL_PORT=3306
+MYSQL_DATABASE=nextclouddb
+MYSQL_USER=nextclouduser
+MYSQL_PASSWORD=Cloud-d3vARETEX
+MYSQL_ROOT_PASSWORD=Cloud-d3vARETEX
+
+DB_USER_NAME="$MYSQL_USER"
+DB_NAME="$MYSQL_DATABASE"
+DB_PASSWORD="$MYSQL_PASSWORD"
+#database type
+DB="mysql"
+
+# nextcloud version
+#change the version as you need
+VERSION=22.2.0
+
+# php version
+#you can change the version but the minimum require is 7.1
+#look at the official nextcloud documentation for updates
+PHP_VERSION=7.4
+MARIADB_VERSION=10.3
+
+# Nextcloud, admin general configuration
+#
+#admin login name
+ADMIN_LOG="admin"
+#admin password
+ADMIN_PASS="Cloud-d3vARETEX"
+#Nextcloud directory
+WEB_ROOT="/var/www/html"
+DRIVE_DIR="$WEB_ROOT/nextcloud"
+DATA_DIR="$DRIVE_DIR/data"
+DOMAIN_NAME="drive.dev.onesi.ca"
+#line number where to insert a  domain name or ip adresse as trusted domain for nextcloud
+#the first line already contains localhost address
+#one line can contains only one address
+LINE_NUMBER=2
+#phone region, required to register phone number without country code
+PHONE_REGION="CA"
+
+# Theme name
+THEME_NAME=drive
+
+#Email server configuration
+#this configuration if for SMTP server
+#
+#values bellow are editable
+MAIL_MODE="smtp"
+MAIL_SERVER="webmail.dev.onesi.ca"
+MAIL_PORT=25
+MAIL_TEST_NAME="irex"
+MAIL_SERVER_DOMAIN="dev.onesi.ca"
+#increase server timeout if a malware or SPAM scanner is running
+#on the server
+MAIL_TIMEOUT=20
+#if the server accepts insecure connections,
+#leave the bellow empty, else set the type of security (ssl, tls...)
+MAIL_SECURE=""
+#set the bellow values to true if your server requires
+#authentiation, else leave it that way
+MAIL_AUTH=""
+#the MAIL_AUTH_TYPE will be set only if the MAIL_AUTH is set to true
+#values are "LOGIN"(default) or "PLAIN", contact the server admin for more
+MAIL_AUTH_TYPE="LOGIN"
+#if authentication is requiered, then set the name and password to use
+MAIL_NAME=""
+MAIL_PASSWD=""
+#set an valid mail address for the admin that will be use to send
+#mails
+MAIL_ADMIN="irex@$MAIL_SERVER_DOMAIN"
+#enable debugging
+MAIL_DEBUG="true"
+
+#Ldap configuration
+PASSWORD="Ld1p-d3vDoc"
+PORT="389"
+BASEDN="dc=dev,dc=onesi,dc=ca"
+BASEDNUSER="dc=dev,dc=onesi,dc=ca"
+BASEDNGROUP="dc=dev,dc=onesi,dc=ca"
+SERVICE_ACCOUNT="cn=admin,dc=dev,dc=onesi,dc=ca"
+HOST="ldap.dev.onesi.ca"
+GROUPFILTERGROUP="users"
+GROUPFILTER="(|(cn=$GROUPFILTERGROUP))"
+LOGINFILTERATTR="uid"
+LOGINFILTEREMAILBOOLEAN="1"
+LOGINFILTERNAMEBOOLEAN="1"
+USERDISPLAYNAME="givenName"
+#USERDISPLAYNAME2=""
+USERFILTEROBJECTCLASS="inetOrgPerson"
+USERFILTER="(|(objectclass=$USERFILTEROBJECTCLASS))"
+LOGINFILTER="(&(|(objectclass=$USERFILTEROBJECTCLASS))(|(|(mailPrimaryAddress=%$LOGINFILTERATTR)(mail=%$LOGINFILTERATTR|))(|(uid=%$LOGINFILTERATTR))))"
+#activate ldap configuration
+#if set to "0" ldap will be disable
+CONFIGACTIVE="1"
+
+#This part is for server optimisation, make sure before change value to understand what you're doing
+#
+#
+# Php-fpm conf
+#Choose how the process manager will control the numbber of child processes.
+#PROCESS_ON_START should be less than MAX_IDLE_PROCESS and more than MIN_IDLE_PROCESS
+MAX_PROCESS_CHILDREN=20
+#Number of process that will be create at the server start
+PROCESS_ON_START=3
+#disire minimum and maximum number of idle server processes
+MIN_IDLE_PROCESS=2
+MAX_IDLE_PROCESS=5
+
+# OPcache configuration
+#OPcache is configure by default, it compressed and store php code
+#in other for it to be load easily in further call
+#
+#enable it by setting the line bellow to "1"
+OP_ENABLE=1
+#The amount of memory for interned strings in Mbytes
+STRING_BUFFER=8
+#Maximum number of keys (scripts) in the OPcache hash table.
+#Only numbers between 200 and 1000000 are allowed
+MAX_ACC_FILES=10000
+# Theo OPcache shared memory storage size
+MEM_CONSUMPTION=128
+# If disabled, all PHPDoc comments are dropped from the code to 
+# reduce the the size of the optimized code. it is better to enable it.
+SAVE_COMMENT=1
+# How often (in seconds) to check file timestamps for changes
+# to the shared momory storage allocation.
+REVALIDATE_FREQ=1
+FAST_SHUTDOWN=1
+#reset the OPcache automatically in oder for changes to take effect
+VALIDATE_TIMESTAMPS=1
+
+# Mysql
+#
+# uncomment the line bellow if you want to use extra 
+# local memory for your database cache, ensure that you 
+# have enough memory
+#TUNE_DB=1
+#
+# then uncomment lines bellow and set your own values
+# in order to make changes you want for you database
+# to take effect
+#
+#MYSQL_BUFFER_SIZE=1G
+#Number of inputs/output operation per second available for innodb
+#background task
+#INNODB_IO_CAPACITY=4000
+
+# Redis
+#
+#set redis_host to your hostname and use the default 
+#port if redis and nextcloud are not running on the same server,
+#otherwise this on is recommended
+#this is the path for the Unix socket that will be used to listen
+#for incoming connections.
+REDIS_HOST="/run/redis/redis-server.sock"
+#socket permission
+SOCKET_PERM=777
+#set to 0 if Unix socket is being using
+REDIS_PORT=0
+REDIS_DEFAULT_PORT=6379
+#redis password
+REDIS_PASS="Cloud-d3vARETEX"
+#close the connectin after a client is idle for N seconds (O to disable)
+TIMEOUT=0.0
+#if undefined, SELECT will not work
+DB_INDEX=0
+
+#Cache and file locking values
+#
+# By default we use redis for file locking and distributed
+# cache and use apcu for local caching.
+#
+# if you want redis to manage all (file locking, distributed
+# and local caching) then uncomment the line bellow.
+#REDIS_FOR_ALL=1
+#
+# change value to "redis" at the line bellow if 
+# you want redis to handle local caching
+# accepted values are "apcu" and "redis"
+LOCAL_CACHE="apcu"
+
+# comment the line bellow if you don't want distributed cache 
+DIST_CACHE=1
+
+# set the value bellow to 0 or just comment it
+# if you don't need redis to 
+# manage file locking
+FILE_LOCKING=1
+
+# uncomment the line bellow to use glance to monitor 
+# server resources
+# use command glances in command line or glances -w
+# and go to the web browser and check at http://ip-address:61208
+#USE_GLANCE=1
+
+# Setup some  php size limit
+MEM_LIMIT="512M"
+MAX_UPLOAD_FILESIZE="10M"
+POST_MAX_SIZE="10M"
+
+#Step-ca configuration
+#
+#Powered By ARETEX
+#
+SERVER_NAME="drive.dev.onesi.ca"
+
+#get url of Step client repository
+URL_REPO="gitface-prod.irex.aretex.ca/irex-docker-projects/mirroring-iaas-projects/authentication/step-ca-client.git"
+
+CERT_DIR="/etc/letsencrypt/live/$SERVER_NAME"
+
+#######Information for get certificate with client script....#####
+GIT_USER="cfofack"
+GIT_PASS=
+
+#get the step server hostname
+STEP_CA_HOST="step-ca.uat.irex.aretex.ca"
+
+#get the step client server
+STEP_CLIENT_NAME=$SERVER_NAME
+
+#get the IP of step server
+STEP_CA_IP="192.168.33.202"
+
+#get the port for access to step-ca service, make sure it's the correct value with step-server
+PORT_ACCESS=8443
+
+#get the user who has installed step-ca server
+STEP_CA_USER="debian"
+
+#get the pass of user
+STEP_CA_PASS_USER="debian"

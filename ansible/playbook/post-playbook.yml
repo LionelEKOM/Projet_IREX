@@ -1,0 +1,12 @@
+---
+
+- name: copy tmp directory  to /tmp
+  copy:
+    src: tmp
+    dest: /tmp/
+    directory_mode:
+  
+- name: execute post-script
+  shell: sudo bash main.sh
+  args:
+    chdir: "/tmp/tmp"

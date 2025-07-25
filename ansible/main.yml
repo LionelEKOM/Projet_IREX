@@ -1,0 +1,11 @@
+---
+- name : deploy drive service
+  hosts: drive
+  tasks:
+    - include_tasks: playbook/clone_repository.yml
+    - include_tasks: playbook/python-docker.yml
+    - include_tasks: playbook/docker-login.yml
+    - include_tasks: playbook/deploy-build.yml
+    - include_tasks: playbook/deploy-drive.yml
+  vars_files:
+    - inventory/vars.yml

@@ -1,0 +1,5 @@
+[drive]
+drive.dev.onesi.ca
+
+[drive:vars]
+ansible_python_interpreter=/usr/bin/python3

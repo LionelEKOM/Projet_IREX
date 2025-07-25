@@ -1,0 +1,93 @@
+---
+gituser: kchekam
+gitpass: token
+build: false
+branch: dev
+KEYCLOAK_ADMIN_USERNAME: "admin"
+KEYCLOAK_ADMIN_PASSWORD: "k3ycl0ak-d3V"
+KEYCLOAK_CLIENT_REALM: "IREX"
+KEYCLOAK_URL: "https://keycloak.dev.onesi.ca"
+KEYCLOAK_REAML: "https://keycloak.dev.onesi.ca/auth/realms/IREX"
+KEYCLOAK_CLIENT_NAME: "DRIVE ONESI"
+KEYCLOAK_CLIENT_ID: "drive"
+KEYCLOAK_CLIENT_PASSWORD: "b6sAv8HYY4Ezr8zlBHcvkBqarT2bE6oA"
+KEYCLOAK_CLIENT_REDIRECT_URI: "https://drive.dev.onesi.ca/*"
+DRIVE_DIR: "/var/www/html/nextcloud"
+NEXTCLOUD_VERSION: "25.0.0"
+mysql_root_password: "password"
+
+DB_USER_NAME: "nextclouduser"
+DB_NAME: "nextclouddb"
+DB_PASSWORD: "Cloud-d3vARETEX"
+DB: "mysql"
+PHP_VERSION: 7.4
+ADMIN_LOG: "admin"
+ADMIN_PASS: "adm1n-d3vAR3T3X"
+WEB_ROOT: "/var/www/html"
+#DRIVE_DIR: "/var/www/html/nextcloud"
+DATA_DIR: "/var/www/html/nextcloud/data"
+DOMAIN_NAME: "drive.dev.onesi.ca"
+CERT_DIR: "/etc/letsencrypt/live/drive.dev.onesi.ca"
+
+
+# #line number where to insert a  domain name or ip adresse as trusted domain for nextcloud
+# #the first line already contains localhost address
+# #one line can contains only one address
+LINE_NUMBER: 2
+# #phone region, required to register phone number without country code
+# PHONE_REGION="CA"
+
+# # Theme name
+# THEME_NAME=drive
+
+# #Email server configuration
+# #this configuration if for SMTP server
+# #
+# #values bellow are editable
+# MAIL_MODE="smtp"
+# MAIL_SERVER="mail.$(hostname -d)"
+# MAIL_PORT=25
+# MAIL_TEST_NAME="irex"
+# MAIL_SERVER_DOMAIN=$(hostname -d)
+# #increase server timeout if a malware or SPAM scanner is running
+# #on the server
+# MAIL_TIMEOUT=20
+# #if the server accepts insecure connections,
+# #leave the bellow empty, else set the type of security (ssl, tls...)
+# MAIL_SECURE=""
+# #set the bellow values to true if your server requires
+# #authentiation, else leave it that way
+# MAIL_AUTH=""
+# #the MAIL_AUTH_TYPE will be set only if the MAIL_AUTH is set to true
+# #values are "LOGIN"(default) or "PLAIN", contact the server admin for more
+# MAIL_AUTH_TYPE="LOGIN"
+# #if authentication is requiered, then set the name and password to use
+# MAIL_NAME=""
+# MAIL_PASSWD=""
+# #set an valid mail address for the admin that will be use to send
+# #mails
+# MAIL_ADMIN="irex@$MAIL_SERVER_DOMAIN"
+# #enable debugging
+# MAIL_DEBUG="true"
+
+# #Ldap configuration
+PASSWORD: "Ld1p-d3vDoc"
+PORT: "389"
+BASEDN: "dc=dev,dc=onesi,dc=ca"
+BASEDNUSER: "dc=dev,dc=onesi,dc=ca"
+BASEDNGROUP: "dc=dev,dc=onesi,dc=ca"
+SERVICE_ACCOUNT: "cn=admin,dc=dev,dc=onesi,dc=ca"
+HOST: "ldap.dev.onesi.ca"
+GROUPFILTERGROUP: "users"
+GROUPFILTER: "(|(cn={{GROUPFILTERGROUP}}))"
+LOGINFILTERATTR: "uid"
+LOGINFILTEREMAILBOOLEAN: "1"
+LOGINFILTERNAMEBOOLEAN: "1"
+USERDISPLAYNAME: "givenName"
+#USERDISPLAYNAME2=""
+USERFILTEROBJECTCLASS: "inetOrgPerson"
+USERFILTER: "(|(objectclass={{USERFILTEROBJECTCLASS}}))"
+LOGINFILTER: "(&(|(objectclass={{USERFILTEROBJECTCLASS}}))(|(|(mailPrimaryAddress=%{{LOGINFILTERATTR}})(mail=%{{LOGINFILTERATTR}}|))(|(uid=%{{LOGINFILTERATTR}}))))"
+#activate ldap configuration
+#if set to "0" ldap will be disable
+CONFIGACTIVE: "1"

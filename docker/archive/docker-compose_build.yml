@@ -1,0 +1,54 @@
+version : "3.8"
+
+#volumes:
+#  mariadb-storage: {} 
+
+services:
+  mariadb:
+    image: mariadb:10.3
+    container_name: mariadb
+    volumes:
+    # - mariadb-storage:/var/lib/mysql
+     - ./mariadb/data:/var/lib/mysql
+    env_file: Irex_drive/conf.defaults
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+
+  drive:
+    #image: registry-prod.irex.aretex.ca/irex-docker-projects/mirroring-iaas-projects/drive/nextcloud/drive:v22.2.0_1.1
+    image: drive:v22.2.0_1.2
+    build:
+      context: .
+      dockerfile: Irex_drive/Dockerfile
+    container_name: drive
+    restart: on-failure
+    volumes:
+      - /etc/letsencrypt/live:/etc/letsencrypt/live
+    ports:
+      - "8080:80"
+      - "2222:22"
+      - "443:443"
+      - "9000:9000"
+      - "6379:6379"
+    depends_on:
+      - mariadb
+
+  drivesetup:
+    #image: registry-prod.irex.aretex.ca/irex-docker-projects/mirroring-iaas-projects/drive/nextcloud/drivesetup:v1.1
+    image: drivesetup:v1.2
+    build:
+      context: .
+      dockerfile: Drive_setup/Dockerfile
+    container_name: drivesetup
+    restart: on-failure
+    volumes:
+      - ./Irex_drive/:/nextcloud/
+    environment:
+      - DRIVE_NGINX_PORT=8080
+      - DRIVE_SSH_PORT=2222
+    depends_on:
+      - drive
+      - mariadb
+
+

@@ -1,0 +1,32 @@
+---
+- name: Apt update cache
+  apt:
+    update_cache: yes
+- name: Install  dependencies
+  apt:
+    name:
+      - nginx
+    state: present
+
+- name: delete default nginx site
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Generate openid connect conf
+  template:
+    src: "template/nextcloud.conf.j2"
+    dest: "/etc/nginx/sites-available/nextcloud.conf"
+    mode: 0644
+
+- name: Create symbolic link to nextcloud configuration
+  file:
+    src: /etc/nginx/sites-available/nextcloud.conf
+    dest: /etc/nginx/sites-enabled/nextcloud.conf
+    state: link
+
+- name: ReStart and enable mariadb service
+  service:
+    name: nginx
+    enabled: true
+    state: restarted

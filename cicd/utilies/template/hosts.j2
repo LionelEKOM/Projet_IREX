@@ -1,0 +1,5 @@
+[drive]
+"{{ ansible_env.DEPLOY_VM }}"  ansible_user="{{ ansible_env.DEPLOY_USER }}" ansible_ssh_pass="{{ ansible_env.DEPLOY_USER_PASS }}" ansible_sudo_pass="{{ ansible_env.DEPLOY_USER_PASS }}"
+
+[drive:vars]
+ansible_python_interpreter=/usr/bin/python3

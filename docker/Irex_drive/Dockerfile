@@ -1,0 +1,83 @@
+#Build stage for drive
+
+FROM debian:buster AS Irex_drive
+
+LABEL maintainer="anassara <anassara@irex.aretex.ca>"
+
+ARG PHP_VERSION=7.4
+
+ARG NEXTCLOUD_VERSION=22.2.0
+
+ARG MARIADB_VERSION="10.3"
+
+#Update package lists
+
+RUN apt-get -y update --allow-releaseinfo-change -y \
+   && apt-get install --no-install-recommends --no-install-suggests -q -y systemd sudo wget tar unzip sed coreutils \
+                                                              gnupg2 lsb-release ca-certificates apt-transport-https \
+                                                              python-pip python-setuptools zip git libmemcached-dev \
+                                                              libmemcached11 libmagickwand-dev nano vim 
+#Install php
+
+RUN wget -q https://packages.sury.org/php/apt.gpg -O- | sudo apt-key add - \
+    && echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/php$PHP_VERSION.list 
+
+RUN apt-get update -y && apt-get install -y php$PHP_VERSION php$PHP_VERSION-bcmath php$PHP_VERSION-gmp \
+     php$PHP_VERSION-fpm php$PHP_VERSION-gd php$PHP_VERSION-json \
+     php$PHP_VERSION-ldap php$PHP_VERSION-mysql php$PHP_VERSION-curl \
+     php$PHP_VERSION-mbstring php$PHP_VERSION-intl \
+     php$PHP_VERSION-xml php$PHP_VERSION-zip php$PHP_VERSION-sqlite3 \
+     php$PHP_VERSION-imagick php$PHP_VERSION-common php$PHP_VERSION-apcu php$PHP_VERSION-redis mariadb-client-$MARIADB_VERSION
+
+RUN sed -i -r "s/listen = \/run\/php\/php$PHP_VERSION-fpm.sock/listen = 9000/g" /etc/php/$PHP_VERSION/fpm/pool.d/www.conf
+
+#Get nextcloud
+
+RUN apt-get install -y bzip2 &&  wget https://download.nextcloud.com/server/releases/nextcloud-$NEXTCLOUD_VERSION.tar.bz2 
+
+RUN tar -jxvf nextcloud-$NEXTCLOUD_VERSION.tar.bz2 && mv nextcloud tmp/ 
+
+RUN rm nextcloud-$NEXTCLOUD_VERSION.tar.bz2
+
+#Install nginx mariadb and other dependencies
+
+RUN apt-get install -y openssl certbot nginx redis-server ssh
+
+#Supervisor installation &&
+#create directory for child images to store configuration in
+
+RUN \ 
+ apt-get -y install supervisor && \ 
+ mkdir -p /var/log/supervisor && \
+ mkdir -p /etc/supervisor/conf.d
+
+#supervisor base configuration 
+ADD ./supervisor.conf /etc/supervisor/conf.d/supervisor.conf
+
+# Clean cache
+
+RUN \
+ apt-get autoremove -y && \
+ apt-get clean -y all
+
+#Open port 
+EXPOSE 9000 443 80 6379 3306 22
+
+#Enable ssh acess
+
+RUN service ssh start
+
+RUN sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+
+RUN sed -Ei 's/#(PermitRootLogin).+/\1 yes/' /etc/ssh/sshd_config
+ 
+RUN service ssh restart
+ 
+#Change default root password 
+
+RUN echo 'root:drive' | chpasswd 
+
+#Use rsyslog instead of journald
+
+CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisor.conf"]
+

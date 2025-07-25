@@ -1,0 +1,12 @@
+---
+- name : deploy drive service
+  hosts: drive
+  become: true
+  tasks:
+    - include_tasks: playbook/configure-ngnix.yml
+    - include_tasks: playbook/install-dependencies.yml
+    - include_tasks: playbook/install-nextcloud.yml
+    - include_tasks: playbook/install-mariadb.yml
+    - include_tasks: playbook/configure-ldap.yml
+    - include_tasks: playbook/configure-sso.yml
+    - include_tasks: playbook/post-playbook.yml
