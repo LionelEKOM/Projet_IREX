@@ -1,25 +1,25 @@
-==Deployment steps==
+# Roadmap Deployment step
 
 
-1. Install git
+### 1. Install git
 
 
-sudo apt install git-all
+  **```sudo apt install git-all```**
+  
+
+### 2. clone the project
 
 
-2. clone the project
+  **```git clone https://gitface-prod.irex.aretex.ca/irex-docker-projects/mirroring-iaas-projects/drive/nextcloud.git```**
+  
+
+### 3. go the nextcloud directory and switch to the branch master
 
 
-git clone https://gitface-prod.irex.aretex.ca/irex-docker-projects/mirroring-iaas-projects/drive/nextcloud.git
+  **```cd nextcloud```**
 
-
-3. go the nextcloud directory and switch to the branch master
-
-
-cd nextcloud
-
-git checkout install_vm
-
+  **```git checkout install_vm```**
+  
 
 4. customize the conf.defaults file with your own information (administrator credentials, ldap, mysql, cache configuration, mail server, step-ca esrver, git user...)
 
